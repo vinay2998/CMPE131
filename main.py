@@ -1,5 +1,7 @@
 from socket import *
 import ssl
+import base64
+
 
 msg = "\r\n I love computer networks!"
 endmsg = "\r\n.\r\n"
@@ -8,14 +10,22 @@ emailTo  = "vinayan.kathiresan@sjsu.edu"
 # Choose a mail server (e.g. Google mail server) and call it mailserver
 #mailserver =  ("smtp.gmx.com", 25)
 #mailserver = ('localhost', 1025)
-mailserver = ("smtp.gmail.com",587)
+mailserver = ("smtp.gmail.com",465)
+context = ssl.create_default_context()
 
 # Create socket called clientSocket and establish a TCP connection with mailserver
 # Fill in start
 clientSocket = socket(AF_INET, SOCK_STREAM)
-#clientSocket = ssl.wrap_socket(clientSocket, ssl_version=ssl.PROTOCOL_SSLv23)
 clientSocket.connect(mailserver)
+
+clientSocket = ssl.wrap_socket(clientSocket, ssl_version=ssl.PROTOCOL_SSLv23)
+clientSocket.send('auth login\r\n'.encode())
+clientSocket.send(base64.b64encode('vinay.car'.encode())+'\r\n'.encode())
+clientSocket.send(base64.b64encode('xxxxxx'.encode())+'\r\n'.encode())
+
 # Fill in end
+
+
 recv = clientSocket.recv(1024).decode()
 print(recv)
 if recv[:3] != '220':
@@ -25,6 +35,7 @@ heloCommand = 'HELO Alice\r\n'
 clientSocket.send(heloCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
+
 if recv1[:3] != '250':
     print('250 reply not received.')
 
